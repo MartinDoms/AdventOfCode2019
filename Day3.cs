@@ -55,11 +55,8 @@ public static class Day3 {
             == 410
         );
 
-        var start = DateTimeOffset.Now;
         var input = File.ReadAllLines(".\\data\\day3.txt").Select(l => l.Split(',')).ToArray();
-        var result = ShortestStepPathIntersection(new Path(input[0]), new Path(input[1])).ToString();
-        Console.WriteLine($"Time {(DateTimeOffset.Now - start).TotalMilliseconds}");
-        return result;
+        return ShortestStepPathIntersection(new Path(input[0]), new Path(input[1])).ToString();
     }
 
     private static int ClosestIntersection(Path path1, Path path2) {
