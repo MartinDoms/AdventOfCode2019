@@ -9,7 +9,7 @@ public class Program {
         Console.WriteLine($"Day 2 Problem 1\t{Day2.Problem1()}");
         Console.WriteLine($"Day 2 Problem 2\t{Day2.Problem2()}");
 
-        //Console.WriteLine($"Day 3 Problem 1\t{Day3.Problem1()}");
+        Console.WriteLine($"Day 3 Problem 1\t{Day3.Problem1()}");
         Console.WriteLine($"Day 3 Problem 2\t{Day3.Problem2()}");
     }
 }
