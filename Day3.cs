@@ -39,12 +39,6 @@ public static class Day3 {
 
     public static string Problem2() {
         
-        var a610 = ShortestStepPathIntersection(
-            new Path(new[] { "R75","D30","R83","U83","L12","D49","R71","U7","L72" }), 
-            new Path(new[] { "U62","R66","U55","R34","D71","R55","D58","R83" })
-        );
-        Console.WriteLine(a610);
-
         Debug.Assert(
             ShortestStepPathIntersection(
                 new Path(new[] { "R75","D30","R83","U83","L12","D49","R71","U7","L72" }), 
