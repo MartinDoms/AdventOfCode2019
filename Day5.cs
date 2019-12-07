@@ -20,9 +20,9 @@ public static class Day5 {
     }
 
     public static string Problem2() {
-        var input = File.ReadAllText(".\\data\\day2.txt").Split(',').Select(s => int.Parse(s)).ToArray();
+        var input = File.ReadAllText(".\\data\\day5.txt").Split(',').Select(s => int.Parse(s)).ToArray();
         
-        throw new ArgumentException();
+        return Compute(input)[0].ToString();
     }
 
     private static void AssertArrays(int[] actual, int[] expected) {
@@ -56,9 +56,21 @@ public static class Day5 {
                 case 4:
                     instruction = new Output(input, i);
                     break;
+                case 5:
+                    instruction = new JumpIfTrue(input, i);
+                    break;
+                case 6:
+                    instruction = new JumpIfFalse(input, i);
+                    break;
+                case 7:
+                    instruction = new LessThan(input, i);
+                    break;
+                case 8:
+                    instruction = new Equal(input, i);
+                    break;
                 default: throw new ArgumentException();
             }
-            (var newInput, var instructionPointer) = instruction.Compute(input);
+            (var newInput, var instructionPointer) = instruction.Compute();
 
             i = instructionPointer;
             input = newInput;
@@ -88,9 +100,12 @@ public static class Day5 {
         public List<Parameter> Arguments { get { return arguments; } }
 
         public int InstructionPointer { get; private set;}
+        protected int[] Input { get; }
 
         public Instruction(int[] input, int instructionPointer) {
             InstructionPointer = instructionPointer;
+            Input = input;
+
             var opCode = input[instructionPointer];
 
             opCode = (int)(opCode / 100); // throw away the first two digits
@@ -106,22 +121,22 @@ public static class Day5 {
                 opCode = (int)(opCode / 10);
             }
         }
-        public (int[] program, int instructionPointer) Compute(int[] input) {
+        public (int[] program, int instructionPointer) Compute() {
             if (Arguments.Count != Parameters) {
                 throw new ArgumentException($"Expected {Parameters} arguments but found {Arguments.Count}");
             }
 
-            return (DoCompute(input), IncrementInstructionPointer());
+            return (DoCompute(), IncrementInstructionPointer());
         }
-        protected abstract int[] DoCompute(int[] input);
+        protected abstract int[] DoCompute();
 
         protected virtual int IncrementInstructionPointer() {
             return InstructionPointer + Parameters + 1;
         }
 
-        protected int GetValueFromParameter(Parameter parameter, int[] input) {
+        protected int GetValueFromParameter(Parameter parameter) {
             if (parameter.ParameterType == ParameterType.Position) {
-                return input[parameter.Value];    
+                return Input[parameter.Value];    
             }
             else {
                 return parameter.Value;
@@ -137,9 +152,9 @@ public static class Day5 {
 
         public override int Parameters => 0;
 
-        protected override int[] DoCompute(int[] input)
+        protected override int[] DoCompute()
         {
-            return input;
+            return Input;
         }
     }
 
@@ -151,11 +166,11 @@ public static class Day5 {
 
         public override int Parameters => 3;
 
-        protected override int[] DoCompute(int[] input)
+        protected override int[] DoCompute()
         {
-            input[Arguments[2].Value] = GetValueFromParameter(Arguments[0], input) 
-                                      + GetValueFromParameter(Arguments[1], input);
-            return input;
+            Input[Arguments[2].Value] = GetValueFromParameter(Arguments[0]) 
+                                      + GetValueFromParameter(Arguments[1]);
+            return Input;
         }
     }
 
@@ -167,11 +182,11 @@ public static class Day5 {
 
         public override int Parameters => 3;
 
-        protected override int[] DoCompute(int[] input)
+        protected override int[] DoCompute()
         {
-            input[Arguments[2].Value] = GetValueFromParameter(Arguments[0], input) 
-                                      * GetValueFromParameter(Arguments[1], input);
-            return input;
+            Input[Arguments[2].Value] = GetValueFromParameter(Arguments[0]) 
+                                      * GetValueFromParameter(Arguments[1]);
+            return Input;
         }
     }
 
@@ -183,15 +198,13 @@ public static class Day5 {
 
         public override int Parameters => 1;
 
-        protected override int[] DoCompute(int[] input)
+        protected override int[] DoCompute()
         {
             Console.WriteLine("Enter user input");
-            //var userInput = int.Parse(Console.ReadLine());
-            //Console.WriteLine($"Got input {userInput}");
-            //Console.WriteLine($"Storing in {Arguments[0].Value}");
-            //input[Arguments[0].Value] = userInput;
-            input[Arguments[0].Value] = 1;
-            return input;
+            var userInput = int.Parse(Console.ReadLine());
+            Input[Arguments[0].Value] = userInput;
+            
+            return Input;
         }
     }
 
@@ -203,13 +216,96 @@ public static class Day5 {
 
         public override int Parameters => 1;
 
-        protected override int[] DoCompute(int[] input)
+        protected override int[] DoCompute()
         {
             Console.WriteLine("Program output:");
-            Console.WriteLine(GetValueFromParameter(Arguments[0], input));
+            Console.WriteLine(GetValueFromParameter(Arguments[0]));
 
-            return input;
+            return Input;
         }
     }
 
+    private class JumpIfTrue : Instruction {
+        public JumpIfTrue(int[] input, int instructionPointer) : base(input, instructionPointer)
+        {
+        }
+
+        public override int Parameters => 2;
+
+        protected override int[] DoCompute()
+        {
+            return Input;
+        }
+
+        protected override int IncrementInstructionPointer() {
+            if (GetValueFromParameter(Arguments[0]) == 0) {
+                return base.IncrementInstructionPointer();
+            }
+            else {
+                return GetValueFromParameter(Arguments[1]);
+            }
+        }
+    }
+
+    private class JumpIfFalse : Instruction {
+        public JumpIfFalse(int[] input, int instructionPointer) : base(input, instructionPointer)
+        {
+        }
+
+        public override int Parameters => 2;
+
+        protected override int[] DoCompute()
+        {
+            return Input;
+        }
+
+        protected override int IncrementInstructionPointer() {
+            if (GetValueFromParameter(Arguments[0]) != 0) {
+                return base.IncrementInstructionPointer();
+            }
+            else {
+                return GetValueFromParameter(Arguments[1]);
+            }
+        }
+    }
+
+    private class LessThan : Instruction {
+        public LessThan(int[] input, int instructionPointer) : base(input, instructionPointer)
+        {
+        }
+
+        public override int Parameters => 3;
+
+        protected override int[] DoCompute()
+        {
+            if (GetValueFromParameter(Arguments[0]) < GetValueFromParameter(Arguments[1])) {
+                Input[Arguments[2].Value] = 1;
+            }
+            else {
+                Input[Arguments[2].Value] = 0;
+            }
+
+            return Input;
+        }
+    }
+
+    private class Equal : Instruction {
+        public Equal(int[] input, int instructionPointer) : base(input, instructionPointer)
+        {
+        }
+
+        public override int Parameters => 3;
+
+        protected override int[] DoCompute()
+        {
+            if (GetValueFromParameter(Arguments[0]) == GetValueFromParameter(Arguments[1])) {
+                Input[Arguments[2].Value] = 1;
+            }
+            else {
+                Input[Arguments[2].Value] = 0;
+            }
+
+            return Input;
+        }
+    }
 }
