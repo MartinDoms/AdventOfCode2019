@@ -58,9 +58,10 @@ public static class Day5 {
                     break;
                 default: throw new ArgumentException();
             }
-            input = instruction.Compute(input);
+            (var newInput, var instructionPointer) = instruction.Compute(input);
 
-            i += instruction.Parameters + 1;
+            i = instructionPointer;
+            input = newInput;
         }
         return input;
     }
@@ -86,8 +87,11 @@ public static class Day5 {
         private List<Parameter> arguments = new List<Parameter>();
         public List<Parameter> Arguments { get { return arguments; } }
 
-        public Instruction(int[] input, int offset) {
-            var opCode = input[offset];
+        public int InstructionPointer { get; private set;}
+
+        public Instruction(int[] input, int instructionPointer) {
+            InstructionPointer = instructionPointer;
+            var opCode = input[instructionPointer];
 
             opCode = (int)(opCode / 100); // throw away the first two digits
             for (int i = 0; i < Parameters; i++) {
@@ -98,18 +102,22 @@ public static class Day5 {
                 else if (paramTypeInt == 1) paramType = ParameterType.Immediate;
                 else throw new ArgumentException("opCode");
 
-                Arguments.Add(new Parameter(input[offset+i+1], paramType));
+                Arguments.Add(new Parameter(input[instructionPointer+i+1], paramType));
                 opCode = (int)(opCode / 10);
             }
         }
-        public int[] Compute(int[] input) {
+        public (int[] program, int instructionPointer) Compute(int[] input) {
             if (Arguments.Count != Parameters) {
                 throw new ArgumentException($"Expected {Parameters} arguments but found {Arguments.Count}");
             }
 
-            return DoCompute(input);
+            return (DoCompute(input), IncrementInstructionPointer());
         }
         protected abstract int[] DoCompute(int[] input);
+
+        protected virtual int IncrementInstructionPointer() {
+            return InstructionPointer + Parameters + 1;
+        }
 
         protected int GetValueFromParameter(Parameter parameter, int[] input) {
             if (parameter.ParameterType == ParameterType.Position) {
