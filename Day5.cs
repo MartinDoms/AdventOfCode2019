@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public static class Day5 {
 
     public static string Problem1() {
-        // test cases
+        // test cases from Day 2, make sure we don't break the computer
         AssertArrays(Compute(new[] {1,0,0,0,99}),          new[] {2,0,0,0,99});
         AssertArrays(Compute(new[] {2,3,0,3,99}),          new[] {2,3,0,6,99});
         AssertArrays(Compute(new[] {2,4,4,5,99,0}),        new[] {2,4,4,5,99,9801});
