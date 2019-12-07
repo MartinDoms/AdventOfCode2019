@@ -14,5 +14,8 @@ public class Program {
 
         Console.WriteLine($"Day 4 Problem 1\t{Day4.Problem1()}");
         Console.WriteLine($"Day 4 Problem 2\t{Day4.Problem2()}");
+
+        Console.WriteLine($"Day 5 Problem 1\t{Day5.Problem1()}");
+        Console.WriteLine($"Day 5 Problem 2\t{Day5.Problem2()}");
     }
 }
