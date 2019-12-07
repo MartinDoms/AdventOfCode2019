@@ -95,7 +95,7 @@ public static class Day5 {
     }
 
     private abstract class Instruction {
-        public abstract int Parameters { get; }
+        protected abstract int ParameterCount { get; }
         private List<Parameter> arguments = new List<Parameter>();
         public List<Parameter> Arguments { get { return arguments; } }
 
@@ -109,7 +109,7 @@ public static class Day5 {
             var opCode = input[instructionPointer];
 
             opCode = (int)(opCode / 100); // throw away the first two digits
-            for (int i = 0; i < Parameters; i++) {
+            for (int i = 0; i < ParameterCount; i++) {
                 var paramTypeInt = opCode % 10;
 
                 ParameterType paramType;
@@ -122,8 +122,8 @@ public static class Day5 {
             }
         }
         public (int[] program, int instructionPointer) Compute() {
-            if (Arguments.Count != Parameters) {
-                throw new ArgumentException($"Expected {Parameters} arguments but found {Arguments.Count}");
+            if (Arguments.Count != ParameterCount) {
+                throw new ArgumentException($"Expected {ParameterCount} arguments but found {Arguments.Count}");
             }
 
             return (DoCompute(), IncrementInstructionPointer());
@@ -131,7 +131,7 @@ public static class Day5 {
         protected abstract int[] DoCompute();
 
         protected virtual int IncrementInstructionPointer() {
-            return InstructionPointer + Parameters + 1;
+            return InstructionPointer + ParameterCount + 1;
         }
 
         protected int GetValueFromParameter(Parameter parameter) {
@@ -150,7 +150,7 @@ public static class Day5 {
         {
         }
 
-        public override int Parameters => 0;
+        protected override int ParameterCount => 0;
 
         protected override int[] DoCompute()
         {
@@ -164,7 +164,7 @@ public static class Day5 {
         {
         }
 
-        public override int Parameters => 3;
+        protected override int ParameterCount => 3;
 
         protected override int[] DoCompute()
         {
@@ -180,7 +180,7 @@ public static class Day5 {
         {
         }
 
-        public override int Parameters => 3;
+        protected override int ParameterCount => 3;
 
         protected override int[] DoCompute()
         {
@@ -196,7 +196,7 @@ public static class Day5 {
         {
         }
 
-        public override int Parameters => 1;
+        protected override int ParameterCount => 1;
 
         protected override int[] DoCompute()
         {
@@ -214,7 +214,7 @@ public static class Day5 {
         {
         }
 
-        public override int Parameters => 1;
+        protected override int ParameterCount => 1;
 
         protected override int[] DoCompute()
         {
@@ -230,7 +230,7 @@ public static class Day5 {
         {
         }
 
-        public override int Parameters => 2;
+        protected override int ParameterCount => 2;
 
         protected override int[] DoCompute()
         {
@@ -252,7 +252,7 @@ public static class Day5 {
         {
         }
 
-        public override int Parameters => 2;
+        protected override int ParameterCount => 2;
 
         protected override int[] DoCompute()
         {
@@ -274,7 +274,7 @@ public static class Day5 {
         {
         }
 
-        public override int Parameters => 3;
+        protected override int ParameterCount => 3;
 
         protected override int[] DoCompute()
         {
@@ -294,7 +294,7 @@ public static class Day5 {
         {
         }
 
-        public override int Parameters => 3;
+        protected override int ParameterCount => 3;
 
         protected override int[] DoCompute()
         {
