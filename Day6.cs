@@ -28,6 +28,23 @@ K)L";
     }
 
     public static string Problem2() {
+        var sample = @"COM)B
+B)C
+C)D
+D)E
+E)F
+B)G
+G)H
+D)I
+E)J
+J)K
+K)L
+K)YOU
+I)SAN";
+
+        var sampleTransfers = GetMinimumTransfers(sample.Split("\r\n"), "YOU", "SAN");
+        Debug.Assert(sampleTransfers == 4, $"Expected 4 but found {sampleTransfers}");
+
         var file = ".\\data\\day6.txt";
         var input = File.ReadAllText(file).Split("\r\n");
 
@@ -37,10 +54,18 @@ K)L";
 
     static int GetMinimumTransfers(IEnumerable<string> nodes, string from, string to) {
         var tree = ToTree(nodes.Select(ToNodePair));
-        var commonParent = GetCommonParent(tree, from, to);
+        var node1 = tree.FindNode(from);
+        var node2 = tree.FindNode(to);
+        var commonParent = GetCommonParent(tree, node1, node2);
         
-        var parent = tree.FindNode(to).Parent;
+        var parent = node1.Parent;
         int pathLength = 0;
+        while (parent != commonParent) {
+            pathLength++;
+            parent = parent.Parent;
+        }
+
+        parent = node2.Parent;
         while (parent != commonParent) {
             pathLength++;
             parent = parent.Parent;
@@ -49,19 +74,19 @@ K)L";
         return pathLength;
     }
 
-    static Node GetCommonParent(Node tree, string n1, string n2) {
-        Node node1 = tree.FindNode(n1);
-        Node node2 = tree.FindNode(n2);
-
-        var node1Path = new Queue<Node>();
+    static Node GetCommonParent(Node tree, Node node1, Node node2) {
+        var node1Path = new List<Node>();
         var parent = node1.Parent;
         Node found = null;
-        while (parent != null) node1Path.Enqueue(parent);
+        while (parent != null) {
+            node1Path.Add(parent);
+            parent = parent.Parent;
+        }
 
         parent = node2.Parent;
         while (found == null && parent != null) {
-            var next = node1Path.Dequeue();
-            if (parent.Name == next.Name) found = next;
+            found = node1Path.FirstOrDefault(n => n.Name == parent.Name);
+            parent = parent.Parent;
         }
 
         return found;
