@@ -28,7 +28,43 @@ K)L";
     }
 
     public static string Problem2() {
-        return string.Empty;
+        var file = ".\\data\\day6.txt";
+        var input = File.ReadAllText(file).Split("\r\n");
+
+        var orbitalTransfers = GetMinimumTransfers(input, "YOU", "SAN");
+        return orbitalTransfers.ToString();
+    }
+
+    static int GetMinimumTransfers(IEnumerable<string> nodes, string from, string to) {
+        var tree = ToTree(nodes.Select(ToNodePair));
+        var commonParent = GetCommonParent(tree, from, to);
+        
+        var parent = tree.FindNode(to).Parent;
+        int pathLength = 0;
+        while (parent != commonParent) {
+            pathLength++;
+            parent = parent.Parent;
+        }
+
+        return pathLength;
+    }
+
+    static Node GetCommonParent(Node tree, string n1, string n2) {
+        Node node1 = tree.FindNode(n1);
+        Node node2 = tree.FindNode(n2);
+
+        var node1Path = new Queue<Node>();
+        var parent = node1.Parent;
+        Node found = null;
+        while (parent != null) node1Path.Enqueue(parent);
+
+        parent = node2.Parent;
+        while (found == null && parent != null) {
+            var next = node1Path.Dequeue();
+            if (parent.Name == next.Name) found = next;
+        }
+
+        return found;
     }
 
     // nodePairs is in format AAA)BBB
@@ -126,6 +162,20 @@ K)L";
             Name = name;
             Children = new List<Node>();
             Children.AddRange(children);
+        }
+
+        internal Node FindNode(string n1)
+        {
+            if (Name == n1) return this;
+
+            foreach (var child in Children) {
+                var found = child.FindNode(n1);
+                if (found != null) {
+                    return found;
+                }
+            }
+
+            return null;
         }
     }
 }
